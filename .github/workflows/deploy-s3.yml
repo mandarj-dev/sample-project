@@ -1,10 +1,10 @@
 name: Deploy Nuxt2 Static Site to S3
 
 on:
+  workflow_dispatch:
   push:
     branches:
-      - main
-  workflow_dispatch:
+      - main          
 
 jobs:
   deploy:
@@ -19,11 +19,14 @@ jobs:
         with:
           node-version: 20
           cache: npm
+          cache-dependency-path: nuxt2-migration-sample/package-lock.json
 
       - name: Install Dependencies
+        working-directory: ./nuxt2-migration-sample
         run: npm ci
 
       - name: Generate Static Site
+        working-directory: ./nuxt2-migration-sample
         run: npm run generate:static
 
       - name: Configure AWS Credentials
@@ -35,7 +38,7 @@ jobs:
 
       - name: Deploy to S3
         run: |
-          aws s3 sync dist/ s3://sd-nuxt2-static-poc --delete
+          aws s3 sync ./nuxt2-migration-sample/dist/ s3://sd-nuxt2-static-poc --delete
 
       - name: Deployment Complete
-        run: echo "Nuxt2 deployed successfully to S3."
+        run: echo "Deployment Successful!"
